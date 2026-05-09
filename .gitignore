@@ -11,3 +11,4 @@ data/pb_municipios_full.geojson
 # OS
 .DS_Store
 Thumbs.db
+.vscode/

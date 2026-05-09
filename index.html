@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Territórios PAS Nordeste – Paraíba</title>
+  <title>Diagnóstico Territorial – Cariri Ocidental & Serra do Teixeira – PB</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <style>
@@ -64,11 +64,91 @@
       white-space: nowrap;
     }
     .header-badge strong { display: block; font-size: 1rem; color: #fff; }
+    .btn-equipe {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.82rem;
+      color: #e0f2fe;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-equipe:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== MODAL EQUIPE ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 2rem 2.25rem;
+      max-width: 520px;
+      width: 92%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      position: relative;
+      animation: fadeInUp 0.22s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .modal-box h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin: 0 0 0.25rem;
+    }
+    .modal-box .modal-subtitle {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.75rem;
+    }
+    .modal-team-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    .modal-team-table tr + tr td { border-top: 1px solid #1e3a5f; }
+    .modal-team-table td { padding: 0.55rem 0.4rem; vertical-align: top; }
+    .modal-team-table .col-name { color: #e2e8f0; font-weight: 600; }
+    .modal-team-table .col-role { color: #94a3b8; padding-left: 1rem; }
+    .modal-footer-note {
+      margin-top: 1.1rem;
+      font-size: 0.75rem;
+      color: #64748b;
+      border-top: 1px solid #334155;
+      padding-top: 0.75rem;
+    }
+    .modal-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover { color: #e2e8f0; }
 
     /* ===== KPI SECTION ===== */
     .kpi-section {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 0;
       border-bottom: 1px solid var(--border);
     }
@@ -574,15 +654,50 @@
 <!-- ===== HEADER ===== -->
 <header class="dash-header">
   <div>
-    <h1>🗺️ Territórios PAS Nordeste – Paraíba</h1>
-    <p>Composição municipal dos Territórios da Cidadania · Dados: MDA/IBGE · Março 2026</p>
+    <h1>🗺️ Diagnóstico Territorial – Paraíba</h1>
+    <p>Cariri Ocidental &amp; Serra do Teixeira · Territórios PAS Nordeste · Fontes: IBGE, MDA · 2026</p>
   </div>
-  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-    <div class="header-badge"><strong>8</strong>Territórios PAS</div>
-    <div class="header-badge"><strong id="hdr-municipios">126</strong>Municípios</div>
-    <div class="header-badge" id="hdr-filtro"><strong>PB</strong>Estado</div>
+  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+    <div class="header-badge"><strong>2</strong>Territórios PAS</div>
+    <div class="header-badge"><strong id="hdr-municipios">23</strong>Municípios</div>
+    <div class="header-badge"><strong>PB</strong>Estado</div>
+    <button class="btn-equipe" onclick="document.getElementById('modal-equipe').classList.add('open')">👥 Equipe</button>
   </div>
 </header>
+
+<!-- ===== MODAL EQUIPE ===== -->
+<div class="modal-overlay" id="modal-equipe" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modal-equipe').classList.remove('open')" aria-label="Fechar">&times;</button>
+    <h2>Diagnóstico Territorial – Paraíba</h2>
+    <div class="modal-subtitle">UFERSA &nbsp;·&nbsp; MDA &nbsp;·&nbsp; UFPB</div>
+    <table class="modal-team-table">
+      <tbody>
+        <tr>
+          <td class="col-name">Josias de Castro Galvão</td>
+          <td class="col-role">Coordenador Institucional da Paraíba</td>
+        </tr>
+        <tr>
+          <td class="col-name">Anieres Barbosa da Silva</td>
+          <td class="col-role">Assessor da Coordenação Institucional da Paraíba</td>
+        </tr>
+        <tr>
+          <td class="col-name">Julia Gonçalves da Silva Pereira</td>
+          <td class="col-role">Bolsista de IC</td>
+        </tr>
+        <tr>
+          <td class="col-name">Francisca Nívia Costa de Vasconcelos</td>
+          <td class="col-role">Articuladora Territorial</td>
+        </tr>
+        <tr>
+          <td class="col-name">Jefferson Sant'ana Galvão</td>
+          <td class="col-role">Geógrafo e Tecnólogo em TI</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="modal-footer-note">Fontes: IBGE, MDA · 2026</div>
+  </div>
+</div>
 
 <!-- ===== KPI CARDS ===== -->
 <div class="kpi-section">
@@ -605,6 +720,15 @@
     <div class="kpi-label">% Ext. Pobres (méd.)</div>
     <div class="kpi-sub" id="kpi-pobres-range"></div>
   </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="kpi-alfabet">—</div>
+    <div class="kpi-label">Taxa Alfabetização (méd.)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="kpi-quilombola">—</div>
+    <div class="kpi-label">Pop. Quilombola</div>
+    <div class="kpi-sub" id="kpi-indigena"></div>
+  </div>
 </div>
 
 <!-- ===== FILTER BAR ===== -->
@@ -616,25 +740,18 @@
     </select>
   </div>
   <div class="filter-group">
-    <label>Bioma</label>
-    <select id="filter-bioma">
-      <option value="all">Todos os biomas</option>
-      <option value="Caatinga">🌵 Caatinga</option>
-      <option value="Mata Atlântica">🌿 Mata Atlântica</option>
-    </select>
-  </div>
-  <div class="filter-group">
     <label>Colorir mapa por</label>
     <select id="color-by">
       <option value="territorio">Território</option>
       <option value="idh">IDH</option>
       <option value="pct_extremamente_pobres">% Pobreza Extrema</option>
-      <option value="bioma">Bioma</option>
+      <option value="taxa_alfabetizacao">Taxa de Alfabetização</option>
+      <option value="taxa_crescimento_pop">Crescimento Populacional</option>
       <option value="pop_total">População Total</option>
     </select>
   </div>
   <button class="btn-reset" onclick="resetFilters()">↺ Limpar</button>
-  <div class="filter-info">Exibindo <span id="filter-count">126</span> municípios</div>
+  <div class="filter-info">Exibindo <span id="filter-count">23</span> municípios</div>
 </div>
 
 <!-- ===== MAP + DETAIL ===== -->
@@ -661,20 +778,20 @@
 <!-- ===== CHARTS ===== -->
 <div class="charts-section">
   <div class="chart-card">
-    <div class="chart-title">População por Território</div>
-    <div class="chart-container" id="chart-pop"></div>
+    <div class="chart-title">Pop. Rural × Urbana por Município</div>
+    <div class="chart-container" id="chart-rural"></div>
   </div>
   <div class="chart-card">
     <div class="chart-title">IDH × % Extremamente Pobres (por Município)</div>
     <div class="chart-container" id="chart-scatter"></div>
   </div>
   <div class="chart-card">
-    <div class="chart-title">Agricultura Familiar por Território</div>
+    <div class="chart-title">Agricultura Familiar por Município</div>
     <div class="chart-container" id="chart-agri"></div>
   </div>
   <div class="chart-card">
-    <div class="chart-title">Pop. Rural × Urbana por Território</div>
-    <div class="chart-container" id="chart-rural"></div>
+    <div class="chart-title">Taxa de Alfabetização e Crescimento Pop. por Município</div>
+    <div class="chart-container" id="chart-social"></div>
   </div>
 </div>
 
@@ -699,7 +816,7 @@
 
 <!-- ===== FOOTER ===== -->
 <footer>
-  Territórios PAS Nordeste – PB · Dados: MDA / IBGE · 2026 ·
+  Diagnóstico Territorial · Cariri Ocidental &amp; Serra do Teixeira – PB · Fontes: IBGE, MDA · 2026 ·
   <a href="https://www.gov.br/mda" target="_blank" rel="noopener">MDA</a> ·
   <a href="https://servicodados.ibge.gov.br" target="_blank" rel="noopener">IBGE</a>
 </footer>
@@ -716,7 +833,7 @@ const PALETTE = [
   '#a78bfa','#fb923c','#4ade80','#e879f9',
   '#22d3ee','#f472b6'
 ];
-const BIOMA_COLORS = { 'Caatinga': '#d97706', 'Mata Atlântica': '#16a34a' };
+
 
 // ── STATE ──────────────────────────────────────────────────
 let allMunicipios = [];
@@ -751,7 +868,6 @@ async function init() {
     initTable();
 
     document.getElementById('filter-territorio').addEventListener('change', applyFilters);
-    document.getElementById('filter-bioma').addEventListener('change', applyFilters);
     document.getElementById('color-by').addEventListener('change', () => {
       refreshMapColors();
       updateLegend();
@@ -766,7 +882,19 @@ async function init() {
 
 // ── MAP ────────────────────────────────────────────────────
 function initMap() {
-  map = L.map('map', { zoomControl: true });
+  // Bounding box da Paraíba com leve margem
+  const pbBounds = L.latLngBounds(
+    L.latLng(-8.6, -39.2),   // sudoeste
+    L.latLng(-5.8, -34.5)    // nordeste
+  );
+
+  map = L.map('map', {
+    zoomControl: true,
+    minZoom: 7,
+    maxZoom: 16,
+    maxBounds: pbBounds,
+    maxBoundsViscosity: 0.85
+  });
   map.setView([-7.2, -36.8], 7);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -841,13 +969,16 @@ function featureStyle(d) {
 
 function getColor(d, colorBy) {
   if (colorBy === 'territorio') return territoryColors[d.territorio] || '#64748b';
-  if (colorBy === 'bioma') return BIOMA_COLORS[d.bioma] || '#64748b';
   if (colorBy === 'idh')
     return lerpColor('#312e81', '#4ade80', norm(d.idh, 0.514, 0.763));
   if (colorBy === 'pct_extremamente_pobres')
     return lerpColor('#4ade80', '#dc2626', norm(d.pct_extremamente_pobres, 3.48, 43.17));
+  if (colorBy === 'taxa_alfabetizacao')
+    return lerpColor('#7c3aed', '#fbbf24', norm(d.taxa_alfabetizacao, 60, 95));
+  if (colorBy === 'taxa_crescimento_pop')
+    return lerpColor('#dc2626', '#4ade80', norm(d.taxa_crescimento_pop, -2, 3));
   if (colorBy === 'pop_total')
-    return lerpColor('#1e3a8a', '#38bdf8', norm(Math.log1p(d.pop_total), Math.log1p(1256), Math.log1p(723515)));
+    return lerpColor('#1e3a8a', '#38bdf8', norm(Math.log1p(d.pop_total), Math.log1p(1000), Math.log1p(80000)));
   return '#64748b';
 }
 
@@ -882,7 +1013,7 @@ function makeTooltip(d) {
       <span style="color:#94a3b8;">População</span><span style="font-weight:600;">${d.pop_total.toLocaleString('pt-BR')}</span>
       <span style="color:#94a3b8;">IDH</span><span style="font-weight:600;">${d.idh.toFixed(3)}</span>
       <span style="color:#94a3b8;">Ext. Pobres</span><span style="font-weight:600;">${d.pct_extremamente_pobres}%</span>
-      <span style="color:#94a3b8;">Bioma</span><span style="font-weight:600;">${d.bioma}</span>
+      <span style="color:#94a3b8;">Alfabet.</span><span style="font-weight:600;">${(d.taxa_alfabetizacao||0).toFixed(1)}%</span>
     </div>
   </div>`;
 }
@@ -914,15 +1045,11 @@ function buildLegendHTML() {
     return `<h6>Território <span style="font-size:0.58rem;color:#475569;">(clique p/ filtrar)</span></h6>${items}`;
   }
 
-  if (colorBy === 'bioma') {
-    return `<h6>Bioma</h6>` + Object.entries(BIOMA_COLORS).map(
-      ([k, v]) => `<div class="legend-item"><div class="legend-dot" style="background:${v};"></div><span class="legend-label">${k}</span></div>`
-    ).join('');
-  }
-
   const cfg = {
     idh: { label: 'IDH', lo: '0.51', hi: '0.76', g: 'linear-gradient(to right,#312e81,#4ade80)' },
-    pct_extremamente_pobres: { label: '% Ext. Pobres', lo: '3%', hi: '43%', g: 'linear-gradient(to right,#4ade80,#dc2626)' },
+    pct_extremamente_pobres: { label: '% Ext. Pobres', lo: 'Menor', hi: 'Maior', g: 'linear-gradient(to right,#4ade80,#dc2626)' },
+    taxa_alfabetizacao: { label: 'Taxa Alfabet.', lo: '60%', hi: '95%', g: 'linear-gradient(to right,#7c3aed,#fbbf24)' },
+    taxa_crescimento_pop: { label: 'Cresc. Pop.', lo: 'Negativo', hi: 'Positivo', g: 'linear-gradient(to right,#dc2626,#4ade80)' },
     pop_total: { label: 'População', lo: 'Menor', hi: 'Maior', g: 'linear-gradient(to right,#1e3a8a,#38bdf8)' }
   };
   const c = cfg[colorBy] || cfg.idh;
@@ -949,12 +1076,9 @@ function populateTerritorioFilter(territories) {
 
 function applyFilters() {
   const territorio = document.getElementById('filter-territorio').value;
-  const bioma = document.getElementById('filter-bioma').value;
 
   filteredMunicipios = allMunicipios.filter(d => {
-    const okT = territorio === 'all' || d.territorio === territorio;
-    const okB = bioma === 'all' || d.bioma === bioma;
-    return okT && okB;
+    return territorio === 'all' || d.territorio === territorio;
   });
 
   document.getElementById('filter-count').textContent = filteredMunicipios.length;
@@ -977,7 +1101,6 @@ function filterByTerritory(name) {
 
 function resetFilters() {
   document.getElementById('filter-territorio').value = 'all';
-  document.getElementById('filter-bioma').value = 'all';
   document.getElementById('color-by').value = 'territorio';
   filteredMunicipios = [...allMunicipios];
   document.getElementById('filter-count').textContent = filteredMunicipios.length;
@@ -994,14 +1117,17 @@ function resetFilters() {
 function updateKPIs(data) {
   if (!data.length) return;
   const n = data.length;
-  const pop = data.reduce((s, d) => s + d.pop_total, 0);
-  const rural = data.reduce((s, d) => s + d.pop_rural, 0);
-  const idh = data.reduce((s, d) => s + d.idh, 0) / n;
+  const pop = data.reduce((s, d) => s + (d.pop_total || 0), 0);
+  const rural = data.reduce((s, d) => s + (d.pop_rural || 0), 0);
+  const idh = data.reduce((s, d) => s + (d.idh || 0), 0) / n;
   const idhMin = Math.min(...data.map(d => d.idh));
   const idhMax = Math.max(...data.map(d => d.idh));
-  const pobres = data.reduce((s, d) => s + d.pct_extremamente_pobres, 0) / n;
+  const pobres = data.reduce((s, d) => s + (d.pct_extremamente_pobres || 0), 0) / n;
   const pobresMin = Math.min(...data.map(d => d.pct_extremamente_pobres));
   const pobresMax = Math.max(...data.map(d => d.pct_extremamente_pobres));
+  const alfabet = data.reduce((s, d) => s + (d.taxa_alfabetizacao || 0), 0) / n;
+  const quilombola = data.reduce((s, d) => s + (d.pop_quilombola || 0), 0);
+  const indigena = data.reduce((s, d) => s + (d.pop_indigena || 0), 0);
 
   document.getElementById('kpi-municipios').textContent = n.toLocaleString('pt-BR');
   document.getElementById('kpi-pop').textContent = fmtPop(pop);
@@ -1010,6 +1136,9 @@ function updateKPIs(data) {
   document.getElementById('kpi-idh-range').textContent = `${idhMin.toFixed(3)} – ${idhMax.toFixed(3)}`;
   document.getElementById('kpi-pobres').textContent = pobres.toFixed(1) + '%';
   document.getElementById('kpi-pobres-range').textContent = `${pobresMin.toFixed(1)}% – ${pobresMax.toFixed(1)}%`;
+  document.getElementById('kpi-alfabet').textContent = alfabet.toFixed(1) + '%';
+  document.getElementById('kpi-quilombola').textContent = quilombola.toLocaleString('pt-BR');
+  document.getElementById('kpi-indigena').textContent = `Indígena: ${indigena.toLocaleString('pt-BR')}`;
 }
 
 function fmtPop(n) {
@@ -1053,11 +1182,12 @@ function showDetail(d) {
   const el = document.getElementById('detail-content');
   el.style.display = 'block';
 
-  const popUrb = d.pop_total - d.pop_rural;
   const pctRural = ((d.pop_rural / d.pop_total) * 100).toFixed(1);
   const tColor = territoryColors[d.territorio] || '#38bdf8';
-  const idhPct = Math.round(norm(d.idh, 0.514, 0.763) * 100);
+  const idhPct  = Math.round(norm(d.idh, 0.514, 0.763) * 100);
   const pobrePct = Math.round(norm(d.pct_extremamente_pobres, 3.48, 43.17) * 100);
+  const alfPct  = Math.round(norm(d.taxa_alfabetizacao || 0, 60, 95) * 100);
+  const crescColor = (d.taxa_crescimento_pop || 0) >= 0 ? '#4ade80' : '#f87171';
 
   el.innerHTML = `
     <div style="border-left:3px solid ${tColor};padding-left:0.7rem;margin-bottom:0.8rem;">
@@ -1065,25 +1195,32 @@ function showDetail(d) {
       <div class="muni-terr">${d.territorio.replace(' - PB', '')}</div>
     </div>
     <div class="badges">
-      <span class="badge-item" style="color:#d97706;">🌿 ${d.bioma}</span>
       <span class="badge-item">IBGE: ${d.ibge}</span>
-      <span class="badge-item">Área: ${d.area.toFixed(0)} km²</span>
+      <span class="badge-item">Área: ${d.area?.toFixed(0)} km²</span>
     </div>
 
     <div class="section-title">👥 População</div>
-    ${mRow('Total', d.pop_total.toLocaleString('pt-BR'))}
-    ${mRow('Rural', `${d.pop_rural.toLocaleString('pt-BR')} (${pctRural}%)`)}
-    ${mRow('Urbana', popUrb.toLocaleString('pt-BR'))}
+    ${mRow('Total', (d.pop_total||0).toLocaleString('pt-BR'))}
+    ${mRow('Urbana', (d.pop_urbana||0).toLocaleString('pt-BR'))}
+    ${mRow('Rural', `${(d.pop_rural||0).toLocaleString('pt-BR')} (${pctRural}%)`)}
+    ${mRow('Quilombola', (d.pop_quilombola||0).toLocaleString('pt-BR'))}
+    ${mRow('Indígena', (d.pop_indigena||0).toLocaleString('pt-BR'))}
+    ${mRow('Cresc. Pop.', `<span style="color:${crescColor};font-weight:700;">${(d.taxa_crescimento_pop||0).toFixed(2)}%</span>`)}
+
+    <div class="section-title">📊 Perfil Social</div>
+    ${mRow('Assentamentos', (d.assentamentos_reforma||0).toLocaleString('pt-BR'))}
+    ${mRow('Terr. Quilombolas', (d.terr_quilombolas||0).toLocaleString('pt-BR'))}
+    ${progBar('Taxa Alfabet.', (d.taxa_alfabetizacao||0).toFixed(1)+'%', alfPct, '#fbbf24')}
+    ${mRow('Sexo (H/M)', `${(d.sexo_hom_pct||0).toFixed(1)}% / ${(d.sexo_mul_pct||0).toFixed(1)}%`)}
 
     <div class="section-title">📈 Desenvolvimento</div>
-    ${progBar('IDH', d.idh.toFixed(3), idhPct, '#4ade80')}
-    ${progBar('% Ext. Pobres', d.pct_extremamente_pobres.toFixed(1) + '%', pobrePct, '#f87171')}
+    ${progBar('IDH', d.idh?.toFixed(3), idhPct, '#4ade80')}
+    ${progBar('% Ext. Pobres', (d.pct_extremamente_pobres||0).toFixed(1)+'%', pobrePct, '#f87171')}
 
     <div class="section-title">🌾 Agricultura Familiar</div>
-    ${mRow('Beneficiários', d.benef_agri_familiar.toLocaleString('pt-BR'))}
-    ${mRow('Pessoal Ocupado', d.pessoal_agricultura.toLocaleString('pt-BR'))}
-    ${mRow('Estabelecimentos', d.estab_agri_familiar.toLocaleString('pt-BR'))}
-    ${mRow('DAP/CAF', d.caf.toLocaleString('pt-BR'))}
+    ${mRow('Beneficiários', (d.benef_agri_familiar||0).toLocaleString('pt-BR'))}
+    ${mRow('Pessoal Ocupado', (d.pessoal_agricultura||0).toLocaleString('pt-BR'))}
+    ${mRow('Estabelecimentos', (d.estab_agri_familiar||0).toLocaleString('pt-BR'))}
   `;
 }
 
@@ -1119,36 +1256,10 @@ const PLOTLY_CFG = { responsive: true, displayModeBar: false };
 function initCharts() { updateCharts(); }
 
 function updateCharts() {
-  chartPop();
+  chartRuralUrbano();
   chartScatter();
   chartAgri();
-  chartRuralUrbano();
-}
-
-// Chart 1 – Population by territory
-function chartPop() {
-  const byT = groupByTerritory(filteredMunicipios,
-    d => ({ pop: d.pop_total }),
-    (acc, d) => { acc.pop += d.pop_total; }
-  );
-  const entries = Object.entries(byT).sort((a, b) => b[1].pop - a[1].pop);
-  const labels = entries.map(([k]) => k.replace(' - PB', ''));
-  const vals = entries.map(([, v]) => v.pop);
-  const colors = entries.map(([k]) => byT[k].color);
-
-  Plotly.react('chart-pop', [{
-    type: 'bar',
-    x: labels, y: vals,
-    marker: { color: colors, opacity: 0.85 },
-    hovertemplate: '<b>%{x}</b><br>Pop.: %{y:,.0f}<extra></extra>',
-    text: vals.map(v => v >= 1e6 ? (v/1e6).toFixed(2)+'M' : v >= 1e3 ? Math.round(v/1e3)+'K' : v),
-    textposition: 'auto',
-    textfont: { size: 8, color: '#0f172a' }
-  }], {
-    ...LAYOUT_BASE,
-    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -28 },
-    yaxis: { ...LAYOUT_BASE.yaxis, title: { text: 'Hab.', font: { size: 9 } } }
-  }, PLOTLY_CFG);
+  chartSocial();
 }
 
 // Chart 2 – Scatter IDH vs Poverty
@@ -1181,60 +1292,45 @@ function chartScatter() {
   }, PLOTLY_CFG);
 }
 
-// Chart 3 – Agriculture
+// Chart 3 – Agriculture by municipality
 function chartAgri() {
-  const byT = groupByTerritory(filteredMunicipios,
-    d => ({ benef: d.benef_agri_familiar, pessoal: d.pessoal_agricultura }),
-    (acc, d) => { acc.benef += d.benef_agri_familiar; acc.pessoal += d.pessoal_agricultura; }
-  );
-  const entries = Object.entries(byT).sort((a, b) => b[1].benef - a[1].benef);
-  const labels = entries.map(([k]) => k.replace(' - PB', ''));
+  const sorted = [...filteredMunicipios].sort((a, b) => (b.benef_agri_familiar||0) - (a.benef_agri_familiar||0));
+  const labels = sorted.map(d => d.municipio);
+  const colors = sorted.map(d => territoryColors[d.territorio] || '#64748b');
 
   Plotly.react('chart-agri', [
     {
-      type: 'bar', name: 'Beneficiários AF',
-      y: labels, x: entries.map(([, v]) => v.benef),
+      type: 'bar', name: 'Benef. AF',
+      y: labels, x: sorted.map(d => d.benef_agri_familiar||0),
       orientation: 'h',
-      marker: { color: '#38bdf8', opacity: 0.82 },
+      marker: { color: colors, opacity: 0.82 },
       hovertemplate: '<b>%{y}</b><br>Benef.: %{x:,.0f}<extra></extra>'
-    },
-    {
-      type: 'bar', name: 'Pessoal Ocupado',
-      y: labels, x: entries.map(([, v]) => v.pessoal),
-      orientation: 'h',
-      marker: { color: '#4ade80', opacity: 0.82 },
-      hovertemplate: '<b>%{y}</b><br>Pessoal: %{x:,.0f}<extra></extra>'
     }
   ], {
     ...LAYOUT_BASE,
-    barmode: 'group',
-    showlegend: true,
-    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: -0.2, x: 0 },
-    margin: { ...LAYOUT_BASE.margin, l: 110, b: 35 },
-    xaxis: { ...LAYOUT_BASE.xaxis, title: { text: 'Pessoas', font: { size: 9 } } },
-    yaxis: { ...LAYOUT_BASE.yaxis, automargin: true }
+    showlegend: false,
+    margin: { ...LAYOUT_BASE.margin, l: 100, b: 35, t: 8 },
+    xaxis: { ...LAYOUT_BASE.xaxis, title: { text: 'Beneficiários AF', font: { size: 9 } } },
+    yaxis: { ...LAYOUT_BASE.yaxis, automargin: true, tickfont: { size: 8 } }
   }, PLOTLY_CFG);
 }
 
-// Chart 4 – Rural vs Urban
+// Chart 4 – Rural vs Urban by municipality (top 15)
 function chartRuralUrbano() {
-  const byT = groupByTerritory(filteredMunicipios,
-    d => ({ rural: d.pop_rural, urbana: d.pop_total - d.pop_rural }),
-    (acc, d) => { acc.rural += d.pop_rural; acc.urbana += (d.pop_total - d.pop_rural); }
-  );
-  const entries = Object.entries(byT).sort((a, b) => (b[1].rural + b[1].urbana) - (a[1].rural + a[1].urbana));
-  const labels = entries.map(([k]) => k.replace(' - PB', ''));
+  const sorted = [...filteredMunicipios].sort((a, b) => (b.pop_total||0) - (a.pop_total||0)).slice(0, 15);
+  const labels = sorted.map(d => d.municipio);
+  const colors = sorted.map(d => territoryColors[d.territorio] || '#64748b');
 
   Plotly.react('chart-rural', [
     {
       type: 'bar', name: 'Rural',
-      x: labels, y: entries.map(([, v]) => v.rural),
+      x: labels, y: sorted.map(d => d.pop_rural||0),
       marker: { color: '#d97706', opacity: 0.85 },
       hovertemplate: '<b>%{x}</b><br>Rural: %{y:,.0f}<extra></extra>'
     },
     {
       type: 'bar', name: 'Urbana',
-      x: labels, y: entries.map(([, v]) => v.urbana),
+      x: labels, y: sorted.map(d => d.pop_urbana||0),
       marker: { color: '#4363d8', opacity: 0.85 },
       hovertemplate: '<b>%{x}</b><br>Urbana: %{y:,.0f}<extra></extra>'
     }
@@ -1242,28 +1338,66 @@ function chartRuralUrbano() {
     ...LAYOUT_BASE,
     barmode: 'stack',
     showlegend: true,
-    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: 1.05, x: 0 },
-    margin: { ...LAYOUT_BASE.margin, t: 22, b: 55 },
-    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -28 },
+    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: 1.06, x: 0 },
+    margin: { ...LAYOUT_BASE.margin, t: 22, b: 60 },
+    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -40, tickfont: { size: 8 } },
     yaxis: { ...LAYOUT_BASE.yaxis, title: { text: 'Hab.', font: { size: 9 } } }
+  }, PLOTLY_CFG);
+}
+
+// Chart 5 – Alfabetização + Crescimento Pop by municipality
+function chartSocial() {
+  const sorted = [...filteredMunicipios].sort((a, b) => (b.taxa_alfabetizacao||0) - (a.taxa_alfabetizacao||0));
+  const labels = sorted.map(d => d.municipio);
+
+  Plotly.react('chart-social', [
+    {
+      type: 'bar', name: 'Taxa Alfabet. (%)', yaxis: 'y',
+      x: labels, y: sorted.map(d => d.taxa_alfabetizacao||0),
+      marker: { color: '#fbbf24', opacity: 0.82 },
+      hovertemplate: '<b>%{x}</b><br>Alfabet.: %{y:.1f}%<extra></extra>'
+    },
+    {
+      type: 'scatter', mode: 'markers', name: 'Cresc. Pop. (%)', yaxis: 'y2',
+      x: labels, y: sorted.map(d => d.taxa_crescimento_pop||0),
+      marker: {
+        color: sorted.map(d => (d.taxa_crescimento_pop||0) >= 0 ? '#4ade80' : '#f87171'),
+        size: 8, symbol: 'diamond'
+      },
+      hovertemplate: '<b>%{x}</b><br>Cresc.: %{y:.2f}%<extra></extra>'
+    }
+  ], {
+    ...LAYOUT_BASE,
+    showlegend: true,
+    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: 1.06, x: 0 },
+    margin: { ...LAYOUT_BASE.margin, t: 22, b: 60, r: 45 },
+    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -40, tickfont: { size: 8 } },
+    yaxis:  { ...LAYOUT_BASE.yaxis, title: { text: 'Alfabet. (%)', font: { size: 9 } }, range: [50, 100] },
+    yaxis2: { overlaying: 'y', side: 'right', title: { text: 'Cresc. (%)', font: { size: 9 } }, gridcolor: 'transparent', tickfont: { size: 8 }, color: '#e2e8f0', zerolinecolor: '#334155' }
   }, PLOTLY_CFG);
 }
 
 // ── TABLE ────────────────────────────────────────────────
 const TABLE_COLS = [
-  { key: 'municipio',               label: 'Município',       type: 'str'  },
-  { key: 'territorio',              label: 'Território',      type: 'str'  },
-  { key: 'bioma',                   label: 'Bioma',           type: 'str'  },
-  { key: 'ibge',                    label: 'IBGE',            type: 'str'  },
-  { key: 'area',                    label: 'Área (km²)',      type: 'num'  },
-  { key: 'pop_total',               label: 'Pop. Total',      type: 'num'  },
-  { key: 'pop_rural',               label: 'Pop. Rural',      type: 'num'  },
-  { key: 'idh',                     label: 'IDH',             type: 'num'  },
-  { key: 'pct_extremamente_pobres', label: '% Ext. Pobres',   type: 'num'  },
-  { key: 'benef_agri_familiar',     label: 'Benef. AF',       type: 'num'  },
-  { key: 'pessoal_agricultura',     label: 'Pessoal Agri.',   type: 'num'  },
-  { key: 'estab_agri_familiar',     label: 'Estab. AF',       type: 'num'  },
-  { key: 'caf',                     label: 'CAF',             type: 'num'  },
+  { key: 'municipio',               label: 'Município',          type: 'str' },
+  { key: 'territorio',              label: 'Território',         type: 'str' },
+  { key: 'ibge',                    label: 'IBGE',               type: 'str' },
+  { key: 'area',                    label: 'Área (km²)',         type: 'num' },
+  { key: 'pop_total',               label: 'Pop. Total',         type: 'num' },
+  { key: 'pop_urbana',              label: 'Pop. Urbana',        type: 'num' },
+  { key: 'pop_rural',               label: 'Pop. Rural',         type: 'num' },
+  { key: 'pop_quilombola',          label: 'Pop. Quilombola',    type: 'num' },
+  { key: 'pop_indigena',            label: 'Pop. Indígena',      type: 'num' },
+  { key: 'assentamentos_reforma',   label: 'Assentamentos',      type: 'num' },
+  { key: 'taxa_alfabetizacao',      label: 'Alfabet. (%)',       type: 'num' },
+  { key: 'sexo_hom_pct',            label: 'Homens (%)',         type: 'num' },
+  { key: 'sexo_mul_pct',            label: 'Mulheres (%)',       type: 'num' },
+  { key: 'idh',                     label: 'IDH',                type: 'num' },
+  { key: 'taxa_crescimento_pop',    label: 'Cresc. Pop. (%)',    type: 'num' },
+  { key: 'pct_extremamente_pobres', label: '% Ext. Pobres',      type: 'num' },
+  { key: 'benef_agri_familiar',     label: 'Benef. AF',          type: 'num' },
+  { key: 'pessoal_agricultura',     label: 'Pessoal Agri.',      type: 'num' },
+  { key: 'estab_agri_familiar',     label: 'Estab. AF',          type: 'num' },
 ];
 
 let tblSort = { key: 'pop_total', dir: -1 };   // -1 = desc, 1 = asc
@@ -1285,8 +1419,7 @@ function renderTable() {
   tblData = filteredMunicipios.filter(d =>
     !q ||
     d.municipio.toLowerCase().includes(q) ||
-    d.territorio.toLowerCase().includes(q) ||
-    d.bioma.toLowerCase().includes(q)
+    d.territorio.toLowerCase().includes(q)
   );
 
   // Sort
@@ -1322,30 +1455,43 @@ function renderTable() {
     const pobrePct = Math.round(norm(d.pct_extremamente_pobres, 3.48, 43.17) * 100);
     const isSelected = d.ibge === selectedIbge;
 
+    const alfPct2   = Math.round(norm(d.taxa_alfabetizacao||0, 60, 95) * 100);
+    const crescColor2 = (d.taxa_crescimento_pop||0) >= 0 ? '#4ade80' : '#f87171';
     return `<tr class="${isSelected ? 'row-selected' : ''}" onclick="onTableRowClick('${d.ibge}')" data-ibge="${d.ibge}">
       <td class="td-municipio">${d.municipio}</td>
       <td><span class="td-terr-dot" style="background:${dotColor};"></span>${terrLabel}</td>
-      <td>${d.bioma}</td>
       <td style="color:var(--muted);">${d.ibge}</td>
-      <td class="td-num">${d.area.toFixed(1)}</td>
-      <td class="td-num">${d.pop_total.toLocaleString('pt-BR')}</td>
-      <td class="td-num">${d.pop_rural.toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.area||0).toFixed(1)}</td>
+      <td class="td-num">${(d.pop_total||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.pop_urbana||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.pop_rural||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.pop_quilombola||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.pop_indigena||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.assentamentos_reforma||0)}</td>
       <td>
         <div class="td-idh-bar">
-          ${d.idh.toFixed(3)}
+          ${(d.taxa_alfabetizacao||0).toFixed(1)}%
+          <span class="mini-bar"><span class="mini-bar-fill" style="width:${alfPct2}%;background:#fbbf24;"></span></span>
+        </div>
+      </td>
+      <td class="td-num">${(d.sexo_hom_pct||0).toFixed(1)}%</td>
+      <td class="td-num">${(d.sexo_mul_pct||0).toFixed(1)}%</td>
+      <td>
+        <div class="td-idh-bar">
+          ${(d.idh||0).toFixed(3)}
           <span class="mini-bar"><span class="mini-bar-fill" style="width:${idhPct}%;background:#4ade80;"></span></span>
         </div>
       </td>
+      <td style="color:${crescColor2};font-weight:600;" class="td-num">${(d.taxa_crescimento_pop||0).toFixed(2)}%</td>
       <td>
         <div class="td-idh-bar">
-          ${d.pct_extremamente_pobres.toFixed(1)}%
+          ${(d.pct_extremamente_pobres||0).toFixed(1)}%
           <span class="mini-bar"><span class="mini-bar-fill" style="width:${pobrePct}%;background:#f87171;"></span></span>
         </div>
       </td>
-      <td class="td-num">${d.benef_agri_familiar.toLocaleString('pt-BR')}</td>
-      <td class="td-num">${d.pessoal_agricultura.toLocaleString('pt-BR')}</td>
-      <td class="td-num">${d.estab_agri_familiar.toLocaleString('pt-BR')}</td>
-      <td class="td-num">${d.caf.toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.benef_agri_familiar||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.pessoal_agricultura||0).toLocaleString('pt-BR')}</td>
+      <td class="td-num">${(d.estab_agri_familiar||0).toLocaleString('pt-BR')}</td>
     </tr>`;
   }).join('');
 }
@@ -1397,6 +1543,9 @@ function groupByTerritory(data, init, merge) {
 }
 
 // ── START ─────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('modal-equipe').classList.remove('open');
+});
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
