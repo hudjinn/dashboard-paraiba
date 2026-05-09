@@ -1,0 +1,13 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Temp files
+data/pb_municipios_raw.geojson
+data/pb_municipios_full.geojson
+
+# OS
+.DS_Store
+Thumbs.db

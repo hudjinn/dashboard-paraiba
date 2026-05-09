@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Territórios PAS Nordeste – Paraíba</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card2: #162032;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent2: #818cf8;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --green: #34d399;
+      --red: #f87171;
+      --orange: #fb923c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    .dash-header {
+      background: linear-gradient(135deg, #075985 0%, #1e3a8a 100%);
+      padding: 1.25rem 1.75rem;
+      border-bottom: 1px solid #1e40af;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .dash-header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 0.2rem;
+      letter-spacing: -0.01em;
+    }
+    .dash-header p {
+      font-size: 0.78rem;
+      color: #bae6fd;
+      margin: 0;
+    }
+    .header-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.8rem;
+      color: #e0f2fe;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .header-badge strong { display: block; font-size: 1rem; color: #fff; }
+
+    /* ===== KPI SECTION ===== */
+    .kpi-section {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .kpi-card {
+      background: var(--card);
+      padding: 1rem 1.25rem;
+      border-right: 1px solid var(--border);
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .kpi-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      display: flex;
+      gap: 1.25rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--card2);
+      border-bottom: 1px solid var(--border);
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .filter-group label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .filter-group select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      min-width: 160px;
+      transition: border-color 0.2s;
+    }
+    .filter-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 0.35rem 1rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-reset:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .filter-info {
+      margin-left: auto;
+      font-size: 0.78rem;
+      color: var(--muted);
+      align-self: center;
+    }
+    .filter-info span { color: var(--accent); font-weight: 600; }
+
+    /* ===== MAIN LAYOUT ===== */
+    .main-section {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      height: calc(100vh - 260px);
+      min-height: 460px;
+      max-height: 580px;
+    }
+
+    #map {
+      height: 100%;
+      position: relative;
+      background: #090f1a;
+    }
+    .map-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9,15,26,0.85);
+      z-index: 1000;
+      flex-direction: column;
+      gap: 0.75rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== DETAIL PANEL ===== */
+    .detail-panel {
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .detail-header {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .detail-body {
+      padding: 0.9rem 1.1rem;
+      flex: 1;
+    }
+    .detail-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+      color: var(--muted);
+      gap: 0.6rem;
+    }
+    .detail-placeholder .icon { font-size: 2.2rem; opacity: 0.4; }
+    .detail-placeholder p { font-size: 0.82rem; line-height: 1.5; }
+
+    .muni-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.15rem;
+    }
+    .muni-terr {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+    .badges {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+    }
+    .badge-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+    .section-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+      margin: 0.85rem 0 0.4rem;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.28rem 0;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.82rem;
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-label { color: var(--muted); }
+    .metric-value { font-weight: 600; color: var(--text); }
+    .prog-wrap { margin: 0.25rem 0; }
+    .prog-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .prog-bar {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* ===== LEAFLET overrides ===== */
+    .leaflet-tooltip {
+      background: rgba(9, 15, 26, 0.96) !important;
+      border: 1px solid #334155 !important;
+      color: #e2e8f0 !important;
+      font-size: 0.78rem !important;
+      border-radius: 8px !important;
+      padding: 0.5rem 0.75rem !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+      pointer-events: none !important;
+    }
+    .leaflet-tooltip::before { display: none !important; }
+    .leaflet-control-attribution {
+      background: rgba(15,23,42,0.8) !important;
+      color: #64748b !important;
+      font-size: 0.6rem !important;
+    }
+    .leaflet-control-attribution a { color: #38bdf8 !important; }
+    .leaflet-control-zoom a {
+      background: #1e293b !important;
+      color: #e2e8f0 !important;
+      border-color: #334155 !important;
+    }
+    .leaflet-control-zoom a:hover { background: #334155 !important; }
+
+    /* ===== MAP LEGEND ===== */
+    .map-legend {
+      background: rgba(9, 15, 26, 0.92);
+      padding: 0.75rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.72rem;
+      max-height: 280px;
+      overflow-y: auto;
+      backdrop-filter: blur(4px);
+    }
+    .map-legend h6 {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+      padding: 0.1rem 0.2rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .legend-item:hover { background: rgba(255,255,255,0.06); }
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .legend-label {
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 155px;
+    }
+    .legend-gradient {
+      height: 7px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+    .legend-grad-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    /* ===== CHARTS SECTION ===== */
+    .charts-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+    }
+    .chart-card {
+      background: var(--card2);
+      padding: 1rem 1.25rem 0.5rem;
+    }
+    .chart-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .chart-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .chart-container { height: 240px; }
+
+    /* ===== TABLE SECTION ===== */
+    .table-section {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.7rem 1.25rem;
+      background: var(--card2);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .table-toolbar-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+    .table-toolbar-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: var(--accent2);
+      border-radius: 2px;
+    }
+    .tbl-search {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 0.3rem 0.65rem;
+      font-size: 0.8rem;
+      width: 200px;
+      transition: border-color 0.2s;
+    }
+    .tbl-search:focus { outline: none; border-color: var(--accent2); }
+    .tbl-search::placeholder { color: #475569; }
+    .tbl-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .tbl-count span { color: var(--accent2); font-weight: 600; }
+    .btn-export {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.77rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-export:hover { border-color: var(--accent2); color: var(--accent2); }
+    .tbl-wrap {
+      overflow-x: auto;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    table.dash-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .dash-table thead th {
+      position: sticky;
+      top: 0;
+      background: #0d1726;
+      color: var(--muted);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .dash-table thead th:hover { color: var(--text); }
+    .dash-table thead th.sorted-asc,
+    .dash-table thead th.sorted-desc { color: var(--accent2); }
+    .dash-table thead th .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 0.7rem; }
+    .dash-table thead th.sorted-asc .sort-icon,
+    .dash-table thead th.sorted-desc .sort-icon { opacity: 1; }
+    .dash-table tbody tr {
+      border-bottom: 1px solid #18253a;
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+    .dash-table tbody tr:hover { background: #1a2d45; }
+    .dash-table tbody tr.row-selected { background: #1e3a5f !important; }
+    .dash-table td {
+      padding: 0.42rem 0.75rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .td-municipio { font-weight: 600; }
+    .td-terr-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .td-num { text-align: right; font-variant-numeric: tabular-nums; }
+    .td-idh-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .mini-bar {
+      width: 40px; height: 5px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+    }
+    .mini-bar-fill { height: 100%; border-radius: 3px; }
+    .no-data-row td {
+      text-align: center;
+      color: var(--muted);
+      padding: 2rem;
+      cursor: default;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.7rem;
+      color: #475569;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .kpi-section { grid-template-columns: repeat(2, 1fr); }
+      .kpi-card { border-bottom: 1px solid var(--border); }
+      .main-section {
+        grid-template-columns: 1fr;
+        height: auto;
+        max-height: none;
+      }
+      #map { height: 380px; }
+      .detail-panel { height: 300px; }
+      .charts-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="dash-header">
+  <div>
+    <h1>🗺️ Territórios PAS Nordeste – Paraíba</h1>
+    <p>Composição municipal dos Territórios da Cidadania · Dados: MDA/IBGE · Março 2026</p>
+  </div>
+  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+    <div class="header-badge"><strong>8</strong>Territórios PAS</div>
+    <div class="header-badge"><strong id="hdr-municipios">126</strong>Municípios</div>
+    <div class="header-badge" id="hdr-filtro"><strong>PB</strong>Estado</div>
+  </div>
+</header>
+
+<!-- ===== KPI CARDS ===== -->
+<div class="kpi-section">
+  <div class="kpi-card">
+    <div class="kpi-value" id="kpi-municipios">—</div>
+    <div class="kpi-label">Municípios</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="kpi-pop">—</div>
+    <div class="kpi-label">Pop. Total</div>
+    <div class="kpi-sub" id="kpi-pop-rural"></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="kpi-idh">—</div>
+    <div class="kpi-label">IDH Médio</div>
+    <div class="kpi-sub" id="kpi-idh-range"></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="kpi-pobres">—</div>
+    <div class="kpi-label">% Ext. Pobres (méd.)</div>
+    <div class="kpi-sub" id="kpi-pobres-range"></div>
+  </div>
+</div>
+
+<!-- ===== FILTER BAR ===== -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <label>Território</label>
+    <select id="filter-territorio">
+      <option value="all">Todos os territórios</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Bioma</label>
+    <select id="filter-bioma">
+      <option value="all">Todos os biomas</option>
+      <option value="Caatinga">🌵 Caatinga</option>
+      <option value="Mata Atlântica">🌿 Mata Atlântica</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Colorir mapa por</label>
+    <select id="color-by">
+      <option value="territorio">Território</option>
+      <option value="idh">IDH</option>
+      <option value="pct_extremamente_pobres">% Pobreza Extrema</option>
+      <option value="bioma">Bioma</option>
+      <option value="pop_total">População Total</option>
+    </select>
+  </div>
+  <button class="btn-reset" onclick="resetFilters()">↺ Limpar</button>
+  <div class="filter-info">Exibindo <span id="filter-count">126</span> municípios</div>
+</div>
+
+<!-- ===== MAP + DETAIL ===== -->
+<div class="main-section">
+  <div id="map">
+    <div class="map-loading" id="map-loading">
+      <div class="spinner"></div>
+      <span>Carregando mapa...</span>
+    </div>
+  </div>
+
+  <div class="detail-panel">
+    <div class="detail-header">Detalhes do Município</div>
+    <div class="detail-body">
+      <div class="detail-placeholder" id="detail-placeholder">
+        <div class="icon">🖱️</div>
+        <p><strong>Clique em um município</strong><br>no mapa para ver<br>informações detalhadas</p>
+      </div>
+      <div id="detail-content" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHARTS ===== -->
+<div class="charts-section">
+  <div class="chart-card">
+    <div class="chart-title">População por Território</div>
+    <div class="chart-container" id="chart-pop"></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">IDH × % Extremamente Pobres (por Município)</div>
+    <div class="chart-container" id="chart-scatter"></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Agricultura Familiar por Território</div>
+    <div class="chart-container" id="chart-agri"></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Pop. Rural × Urbana por Território</div>
+    <div class="chart-container" id="chart-rural"></div>
+  </div>
+</div>
+
+<!-- ===== TABLE ===== -->
+<div class="table-section">
+  <div class="table-toolbar">
+    <div class="table-toolbar-title">📋 Dados Tabulados</div>
+    <input class="tbl-search" id="tbl-search" type="text" placeholder="Buscar município..." oninput="renderTable()" />
+    <div class="filter-group" style="flex-direction:row;align-items:center;gap:0.4rem;">
+      <label style="font-size:0.68rem;color:var(--muted);white-space:nowrap;">Ordenar por</label>
+    </div>
+    <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+    <div class="tbl-count">Exibindo <span id="tbl-count">—</span> registros</div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="dash-table">
+      <thead id="tbl-head"></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  Territórios PAS Nordeste – PB · Dados: MDA / IBGE · 2026 ·
+  <a href="https://www.gov.br/mda" target="_blank" rel="noopener">MDA</a> ·
+  <a href="https://servicodados.ibge.gov.br" target="_blank" rel="noopener">IBGE</a>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<script>
+'use strict';
+
+// ── PALETTE ────────────────────────────────────────────────
+const PALETTE = [
+  '#38bdf8','#f87171','#34d399','#fbbf24',
+  '#a78bfa','#fb923c','#4ade80','#e879f9',
+  '#22d3ee','#f472b6'
+];
+const BIOMA_COLORS = { 'Caatinga': '#d97706', 'Mata Atlântica': '#16a34a' };
+
+// ── STATE ──────────────────────────────────────────────────
+let allMunicipios = [];
+let filteredMunicipios = [];
+let territoryColors = {};
+let map = null;
+let geoLayer = null;
+let ibgeToLayer = {};
+let selectedIbge = null;
+let legendControl = null;
+
+// ── INIT ──────────────────────────────────────────────────
+async function init() {
+  try {
+    const [mData] = await Promise.all([
+      fetch('data/municipios.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    ]);
+
+    allMunicipios = mData;
+    filteredMunicipios = [...mData];
+
+    // Build territory color map
+    const territories = [...new Set(mData.map(d => d.territorio))].sort();
+    territories.forEach((t, i) => { territoryColors[t] = PALETTE[i % PALETTE.length]; });
+
+    populateTerritorioFilter(territories);
+    updateKPIs(filteredMunicipios);
+
+    initMap();
+    loadGeoJSON();
+    initCharts();
+    initTable();
+
+    document.getElementById('filter-territorio').addEventListener('change', applyFilters);
+    document.getElementById('filter-bioma').addEventListener('change', applyFilters);
+    document.getElementById('color-by').addEventListener('change', () => {
+      refreshMapColors();
+      updateLegend();
+    });
+
+  } catch (err) {
+    console.error('Init error:', err);
+    document.getElementById('map-loading').innerHTML =
+      `<div style="color:#f87171;text-align:center;padding:1rem;">⚠️ Erro ao carregar dados.<br><small>${err.message}</small></div>`;
+  }
+}
+
+// ── MAP ────────────────────────────────────────────────────
+function initMap() {
+  map = L.map('map', { zoomControl: true });
+  map.setView([-7.2, -36.8], 7);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 18
+  }).addTo(map);
+
+  addLegend();
+}
+
+function loadGeoJSON() {
+  fetch('data/pb_municipios.geojson')
+    .then(r => { if (!r.ok) throw new Error('GeoJSON ' + r.status); return r.json(); })
+    .then(geojson => {
+      const dataMap = buildDataMap(allMunicipios);
+
+      geoLayer = L.geoJSON(geojson, {
+        style: f => featureStyle(dataMap[f.properties.codarea]),
+        onEachFeature: (feature, layer) => {
+          const d = dataMap[feature.properties.codarea];
+          if (!d) return;
+          ibgeToLayer[d.ibge] = layer;
+          layer._ibge = d.ibge;
+
+          layer.bindTooltip(makeTooltip(d), { sticky: true, direction: 'top', offset: [0, -4] });
+
+          layer.on('click', () => onMunicipioClick(d));
+          layer.on('mouseover', function () {
+            if (d.ibge !== selectedIbge) {
+              this.setStyle({ weight: 2, opacity: 1, fillOpacity: 0.92 });
+            }
+          });
+          layer.on('mouseout', function () {
+            if (d.ibge !== selectedIbge) geoLayer.resetStyle(this);
+          });
+        }
+      }).addTo(map);
+
+      document.getElementById('map-loading').style.display = 'none';
+      map.fitBounds(geoLayer.getBounds(), { padding: [16, 16] });
+    })
+    .catch(err => {
+      document.getElementById('map-loading').innerHTML =
+        `<div style="color:#f87171;text-align:center;padding:1rem;">⚠️ Não foi possível carregar o mapa.<br><small>${err.message}</small></div>`;
+    });
+}
+
+function buildDataMap(data) {
+  const m = {};
+  data.forEach(d => { m[d.ibge] = d; });
+  return m;
+}
+
+// ── STYLING ────────────────────────────────────────────────
+function featureStyle(d) {
+  if (!d) return { fillColor: '#1e293b', weight: 0.5, color: '#0f172a', fillOpacity: 0.3 };
+
+  const colorBy = document.getElementById('color-by')?.value || 'territorio';
+  const fill = getColor(d, colorBy);
+  const isSelected = d.ibge === selectedIbge;
+  const isVisible = filteredMunicipios.some(m => m.ibge === d.ibge);
+
+  return {
+    fillColor: fill,
+    weight: isSelected ? 3 : 0.6,
+    color: isSelected ? '#ffffff' : '#0a0f1c',
+    fillOpacity: isVisible ? (isSelected ? 1.0 : 0.72) : 0.15,
+    opacity: isVisible ? 1 : 0.35
+  };
+}
+
+function getColor(d, colorBy) {
+  if (colorBy === 'territorio') return territoryColors[d.territorio] || '#64748b';
+  if (colorBy === 'bioma') return BIOMA_COLORS[d.bioma] || '#64748b';
+  if (colorBy === 'idh')
+    return lerpColor('#312e81', '#4ade80', norm(d.idh, 0.514, 0.763));
+  if (colorBy === 'pct_extremamente_pobres')
+    return lerpColor('#4ade80', '#dc2626', norm(d.pct_extremamente_pobres, 3.48, 43.17));
+  if (colorBy === 'pop_total')
+    return lerpColor('#1e3a8a', '#38bdf8', norm(Math.log1p(d.pop_total), Math.log1p(1256), Math.log1p(723515)));
+  return '#64748b';
+}
+
+function norm(val, lo, hi) { return Math.max(0, Math.min(1, (val - lo) / (hi - lo))); }
+
+function lerpColor(c1, c2, t) {
+  const p = s => parseInt(s.slice(1), 16);
+  const r1 = (p(c1) >> 16) & 0xff, g1 = (p(c1) >> 8) & 0xff, b1 = p(c1) & 0xff;
+  const r2 = (p(c2) >> 16) & 0xff, g2 = (p(c2) >> 8) & 0xff, b2 = p(c2) & 0xff;
+  return '#' + [
+    Math.round(r1 + t * (r2 - r1)),
+    Math.round(g1 + t * (g2 - g1)),
+    Math.round(b1 + t * (b2 - b1))
+  ].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+function refreshMapColors() {
+  if (!geoLayer) return;
+  const dm = buildDataMap(allMunicipios);
+  geoLayer.eachLayer(layer => {
+    if (layer._ibge) layer.setStyle(featureStyle(dm[layer._ibge]));
+  });
+}
+
+// ── TOOLTIP ────────────────────────────────────────────────
+function makeTooltip(d) {
+  const c = territoryColors[d.territorio] || '#38bdf8';
+  return `<div>
+    <div style="font-size:0.88rem;font-weight:700;color:${c};margin-bottom:3px;">${d.municipio}</div>
+    <div style="color:#94a3b8;font-size:0.72rem;margin-bottom:5px;">${d.territorio.replace(' - PB','')}</div>
+    <div style="display:grid;grid-template-columns:auto auto;gap:1px 12px;font-size:0.74rem;">
+      <span style="color:#94a3b8;">População</span><span style="font-weight:600;">${d.pop_total.toLocaleString('pt-BR')}</span>
+      <span style="color:#94a3b8;">IDH</span><span style="font-weight:600;">${d.idh.toFixed(3)}</span>
+      <span style="color:#94a3b8;">Ext. Pobres</span><span style="font-weight:600;">${d.pct_extremamente_pobres}%</span>
+      <span style="color:#94a3b8;">Bioma</span><span style="font-weight:600;">${d.bioma}</span>
+    </div>
+  </div>`;
+}
+
+// ── LEGEND ────────────────────────────────────────────────
+function addLegend() {
+  legendControl = L.control({ position: 'bottomleft' });
+  legendControl.onAdd = () => {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.id = 'legend-box';
+    div.innerHTML = buildLegendHTML();
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+  legendControl.addTo(map);
+}
+
+function buildLegendHTML() {
+  const colorBy = document.getElementById('color-by')?.value || 'territorio';
+
+  if (colorBy === 'territorio') {
+    const items = Object.entries(territoryColors)
+      .map(([name, color]) => `
+        <div class="legend-item" onclick="filterByTerritory('${name}')">
+          <div class="legend-dot" style="background:${color};"></div>
+          <span class="legend-label">${name.replace(' - PB', '')}</span>
+        </div>`
+      ).join('');
+    return `<h6>Território <span style="font-size:0.58rem;color:#475569;">(clique p/ filtrar)</span></h6>${items}`;
+  }
+
+  if (colorBy === 'bioma') {
+    return `<h6>Bioma</h6>` + Object.entries(BIOMA_COLORS).map(
+      ([k, v]) => `<div class="legend-item"><div class="legend-dot" style="background:${v};"></div><span class="legend-label">${k}</span></div>`
+    ).join('');
+  }
+
+  const cfg = {
+    idh: { label: 'IDH', lo: '0.51', hi: '0.76', g: 'linear-gradient(to right,#312e81,#4ade80)' },
+    pct_extremamente_pobres: { label: '% Ext. Pobres', lo: '3%', hi: '43%', g: 'linear-gradient(to right,#4ade80,#dc2626)' },
+    pop_total: { label: 'População', lo: 'Menor', hi: 'Maior', g: 'linear-gradient(to right,#1e3a8a,#38bdf8)' }
+  };
+  const c = cfg[colorBy] || cfg.idh;
+  return `<h6>${c.label}</h6>
+    <div class="legend-grad-labels"><span>${c.lo}</span><span>${c.hi}</span></div>
+    <div class="legend-gradient" style="background:${c.g};"></div>`;
+}
+
+function updateLegend() {
+  const el = document.getElementById('legend-box');
+  if (el) el.innerHTML = buildLegendHTML();
+}
+
+// ── FILTERS ────────────────────────────────────────────────
+function populateTerritorioFilter(territories) {
+  const sel = document.getElementById('filter-territorio');
+  territories.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t.replace(' - PB', '');
+    sel.appendChild(opt);
+  });
+}
+
+function applyFilters() {
+  const territorio = document.getElementById('filter-territorio').value;
+  const bioma = document.getElementById('filter-bioma').value;
+
+  filteredMunicipios = allMunicipios.filter(d => {
+    const okT = territorio === 'all' || d.territorio === territorio;
+    const okB = bioma === 'all' || d.bioma === bioma;
+    return okT && okB;
+  });
+
+  document.getElementById('filter-count').textContent = filteredMunicipios.length;
+  document.getElementById('hdr-municipios').textContent = filteredMunicipios.length;
+
+  updateKPIs(filteredMunicipios);
+  refreshMapColors();
+  updateCharts();
+  renderTable();
+
+  if (selectedIbge && !filteredMunicipios.some(m => m.ibge === selectedIbge)) {
+    clearSelection();
+  }
+}
+
+function filterByTerritory(name) {
+  document.getElementById('filter-territorio').value = name;
+  applyFilters();
+}
+
+function resetFilters() {
+  document.getElementById('filter-territorio').value = 'all';
+  document.getElementById('filter-bioma').value = 'all';
+  document.getElementById('color-by').value = 'territorio';
+  filteredMunicipios = [...allMunicipios];
+  document.getElementById('filter-count').textContent = filteredMunicipios.length;
+  document.getElementById('hdr-municipios').textContent = filteredMunicipios.length;
+  updateKPIs(filteredMunicipios);
+  refreshMapColors();
+  updateLegend();
+  updateCharts();
+  renderTable();
+  clearSelection();
+}
+
+// ── KPI CARDS ─────────────────────────────────────────────
+function updateKPIs(data) {
+  if (!data.length) return;
+  const n = data.length;
+  const pop = data.reduce((s, d) => s + d.pop_total, 0);
+  const rural = data.reduce((s, d) => s + d.pop_rural, 0);
+  const idh = data.reduce((s, d) => s + d.idh, 0) / n;
+  const idhMin = Math.min(...data.map(d => d.idh));
+  const idhMax = Math.max(...data.map(d => d.idh));
+  const pobres = data.reduce((s, d) => s + d.pct_extremamente_pobres, 0) / n;
+  const pobresMin = Math.min(...data.map(d => d.pct_extremamente_pobres));
+  const pobresMax = Math.max(...data.map(d => d.pct_extremamente_pobres));
+
+  document.getElementById('kpi-municipios').textContent = n.toLocaleString('pt-BR');
+  document.getElementById('kpi-pop').textContent = fmtPop(pop);
+  document.getElementById('kpi-pop-rural').textContent = `Rural: ${((rural/pop)*100).toFixed(1)}%`;
+  document.getElementById('kpi-idh').textContent = idh.toFixed(3);
+  document.getElementById('kpi-idh-range').textContent = `${idhMin.toFixed(3)} – ${idhMax.toFixed(3)}`;
+  document.getElementById('kpi-pobres').textContent = pobres.toFixed(1) + '%';
+  document.getElementById('kpi-pobres-range').textContent = `${pobresMin.toFixed(1)}% – ${pobresMax.toFixed(1)}%`;
+}
+
+function fmtPop(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+  return n.toLocaleString('pt-BR');
+}
+
+// ── MUNICIPALITY CLICK ─────────────────────────────────────
+function onMunicipioClick(d) {
+  if (selectedIbge && ibgeToLayer[selectedIbge]) {
+    geoLayer.resetStyle(ibgeToLayer[selectedIbge]);
+  }
+  selectedIbge = d.ibge;
+  const layer = ibgeToLayer[d.ibge];
+  if (layer) {
+    const colorBy = document.getElementById('color-by').value;
+    layer.setStyle({ weight: 3, color: '#fff', fillOpacity: 1.0, fillColor: getColor(d, colorBy) });
+    layer.bringToFront();
+  }
+  showDetail(d);
+
+  // Sync table highlight
+  document.querySelectorAll('#tbl-body tr').forEach(tr => {
+    const active = tr.dataset.ibge === d.ibge;
+    tr.classList.toggle('row-selected', active);
+    if (active) tr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+}
+
+function clearSelection() {
+  if (selectedIbge && ibgeToLayer[selectedIbge]) geoLayer?.resetStyle(ibgeToLayer[selectedIbge]);
+  selectedIbge = null;
+  document.getElementById('detail-placeholder').style.display = 'flex';
+  document.getElementById('detail-content').style.display = 'none';
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────
+function showDetail(d) {
+  document.getElementById('detail-placeholder').style.display = 'none';
+  const el = document.getElementById('detail-content');
+  el.style.display = 'block';
+
+  const popUrb = d.pop_total - d.pop_rural;
+  const pctRural = ((d.pop_rural / d.pop_total) * 100).toFixed(1);
+  const tColor = territoryColors[d.territorio] || '#38bdf8';
+  const idhPct = Math.round(norm(d.idh, 0.514, 0.763) * 100);
+  const pobrePct = Math.round(norm(d.pct_extremamente_pobres, 3.48, 43.17) * 100);
+
+  el.innerHTML = `
+    <div style="border-left:3px solid ${tColor};padding-left:0.7rem;margin-bottom:0.8rem;">
+      <div class="muni-name">${d.municipio}</div>
+      <div class="muni-terr">${d.territorio.replace(' - PB', '')}</div>
+    </div>
+    <div class="badges">
+      <span class="badge-item" style="color:#d97706;">🌿 ${d.bioma}</span>
+      <span class="badge-item">IBGE: ${d.ibge}</span>
+      <span class="badge-item">Área: ${d.area.toFixed(0)} km²</span>
+    </div>
+
+    <div class="section-title">👥 População</div>
+    ${mRow('Total', d.pop_total.toLocaleString('pt-BR'))}
+    ${mRow('Rural', `${d.pop_rural.toLocaleString('pt-BR')} (${pctRural}%)`)}
+    ${mRow('Urbana', popUrb.toLocaleString('pt-BR'))}
+
+    <div class="section-title">📈 Desenvolvimento</div>
+    ${progBar('IDH', d.idh.toFixed(3), idhPct, '#4ade80')}
+    ${progBar('% Ext. Pobres', d.pct_extremamente_pobres.toFixed(1) + '%', pobrePct, '#f87171')}
+
+    <div class="section-title">🌾 Agricultura Familiar</div>
+    ${mRow('Beneficiários', d.benef_agri_familiar.toLocaleString('pt-BR'))}
+    ${mRow('Pessoal Ocupado', d.pessoal_agricultura.toLocaleString('pt-BR'))}
+    ${mRow('Estabelecimentos', d.estab_agri_familiar.toLocaleString('pt-BR'))}
+    ${mRow('DAP/CAF', d.caf.toLocaleString('pt-BR'))}
+  `;
+}
+
+function mRow(label, value) {
+  return `<div class="metric-row"><span class="metric-label">${label}</span><span class="metric-value">${value}</span></div>`;
+}
+
+function progBar(label, val, pct, color) {
+  return `<div class="prog-wrap">
+    <div class="prog-labels"><span>${label}</span><span style="color:${color};font-weight:600;">${val}</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${color};"></div></div>
+  </div>`;
+}
+
+// ── CHARTS ────────────────────────────────────────────────
+const LAYOUT_BASE = {
+  paper_bgcolor: 'transparent',
+  plot_bgcolor: 'transparent',
+  font: { color: '#e2e8f0', family: 'Segoe UI, system-ui, sans-serif', size: 10 },
+  margin: { l: 45, r: 12, t: 8, b: 55 },
+  showlegend: false,
+  xaxis: { gridcolor: '#1e293b', zerolinecolor: '#334155', tickfont: { size: 9 } },
+  yaxis: { gridcolor: '#1e293b', zerolinecolor: '#334155', tickfont: { size: 9 } },
+  hoverlabel: {
+    bgcolor: 'rgba(9,15,26,0.95)',
+    bordercolor: '#334155',
+    font: { color: '#e2e8f0', size: 11 }
+  }
+};
+
+const PLOTLY_CFG = { responsive: true, displayModeBar: false };
+
+function initCharts() { updateCharts(); }
+
+function updateCharts() {
+  chartPop();
+  chartScatter();
+  chartAgri();
+  chartRuralUrbano();
+}
+
+// Chart 1 – Population by territory
+function chartPop() {
+  const byT = groupByTerritory(filteredMunicipios,
+    d => ({ pop: d.pop_total }),
+    (acc, d) => { acc.pop += d.pop_total; }
+  );
+  const entries = Object.entries(byT).sort((a, b) => b[1].pop - a[1].pop);
+  const labels = entries.map(([k]) => k.replace(' - PB', ''));
+  const vals = entries.map(([, v]) => v.pop);
+  const colors = entries.map(([k]) => byT[k].color);
+
+  Plotly.react('chart-pop', [{
+    type: 'bar',
+    x: labels, y: vals,
+    marker: { color: colors, opacity: 0.85 },
+    hovertemplate: '<b>%{x}</b><br>Pop.: %{y:,.0f}<extra></extra>',
+    text: vals.map(v => v >= 1e6 ? (v/1e6).toFixed(2)+'M' : v >= 1e3 ? Math.round(v/1e3)+'K' : v),
+    textposition: 'auto',
+    textfont: { size: 8, color: '#0f172a' }
+  }], {
+    ...LAYOUT_BASE,
+    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -28 },
+    yaxis: { ...LAYOUT_BASE.yaxis, title: { text: 'Hab.', font: { size: 9 } } }
+  }, PLOTLY_CFG);
+}
+
+// Chart 2 – Scatter IDH vs Poverty
+function chartScatter() {
+  const territories = [...new Set(filteredMunicipios.map(d => d.territorio))].sort();
+  const traces = territories.map(terr => {
+    const pts = filteredMunicipios.filter(d => d.territorio === terr);
+    return {
+      type: 'scatter', mode: 'markers',
+      name: terr.replace(' - PB', ''),
+      x: pts.map(d => d.idh),
+      y: pts.map(d => d.pct_extremamente_pobres),
+      text: pts.map(d => d.municipio),
+      marker: {
+        color: territoryColors[terr] || '#64748b',
+        size: pts.map(d => Math.max(5, Math.min(18, Math.log(d.pop_total + 1) * 1.1))),
+        opacity: 0.82,
+        line: { width: 0.5, color: '#0a0f1c' }
+      },
+      hovertemplate: '<b>%{text}</b><br>IDH: %{x:.3f}<br>Ext. Pobres: %{y:.1f}%<extra></extra>'
+    };
+  });
+
+  Plotly.react('chart-scatter', traces, {
+    ...LAYOUT_BASE,
+    showlegend: territories.length > 1,
+    legend: { bgcolor: 'transparent', font: { size: 8 }, x: 1, xanchor: 'right', y: 1 },
+    xaxis: { ...LAYOUT_BASE.xaxis, title: { text: 'IDH', font: { size: 9 } } },
+    yaxis: { ...LAYOUT_BASE.yaxis, title: { text: '% Ext. Pobres', font: { size: 9 } } }
+  }, PLOTLY_CFG);
+}
+
+// Chart 3 – Agriculture
+function chartAgri() {
+  const byT = groupByTerritory(filteredMunicipios,
+    d => ({ benef: d.benef_agri_familiar, pessoal: d.pessoal_agricultura }),
+    (acc, d) => { acc.benef += d.benef_agri_familiar; acc.pessoal += d.pessoal_agricultura; }
+  );
+  const entries = Object.entries(byT).sort((a, b) => b[1].benef - a[1].benef);
+  const labels = entries.map(([k]) => k.replace(' - PB', ''));
+
+  Plotly.react('chart-agri', [
+    {
+      type: 'bar', name: 'Beneficiários AF',
+      y: labels, x: entries.map(([, v]) => v.benef),
+      orientation: 'h',
+      marker: { color: '#38bdf8', opacity: 0.82 },
+      hovertemplate: '<b>%{y}</b><br>Benef.: %{x:,.0f}<extra></extra>'
+    },
+    {
+      type: 'bar', name: 'Pessoal Ocupado',
+      y: labels, x: entries.map(([, v]) => v.pessoal),
+      orientation: 'h',
+      marker: { color: '#4ade80', opacity: 0.82 },
+      hovertemplate: '<b>%{y}</b><br>Pessoal: %{x:,.0f}<extra></extra>'
+    }
+  ], {
+    ...LAYOUT_BASE,
+    barmode: 'group',
+    showlegend: true,
+    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: -0.2, x: 0 },
+    margin: { ...LAYOUT_BASE.margin, l: 110, b: 35 },
+    xaxis: { ...LAYOUT_BASE.xaxis, title: { text: 'Pessoas', font: { size: 9 } } },
+    yaxis: { ...LAYOUT_BASE.yaxis, automargin: true }
+  }, PLOTLY_CFG);
+}
+
+// Chart 4 – Rural vs Urban
+function chartRuralUrbano() {
+  const byT = groupByTerritory(filteredMunicipios,
+    d => ({ rural: d.pop_rural, urbana: d.pop_total - d.pop_rural }),
+    (acc, d) => { acc.rural += d.pop_rural; acc.urbana += (d.pop_total - d.pop_rural); }
+  );
+  const entries = Object.entries(byT).sort((a, b) => (b[1].rural + b[1].urbana) - (a[1].rural + a[1].urbana));
+  const labels = entries.map(([k]) => k.replace(' - PB', ''));
+
+  Plotly.react('chart-rural', [
+    {
+      type: 'bar', name: 'Rural',
+      x: labels, y: entries.map(([, v]) => v.rural),
+      marker: { color: '#d97706', opacity: 0.85 },
+      hovertemplate: '<b>%{x}</b><br>Rural: %{y:,.0f}<extra></extra>'
+    },
+    {
+      type: 'bar', name: 'Urbana',
+      x: labels, y: entries.map(([, v]) => v.urbana),
+      marker: { color: '#4363d8', opacity: 0.85 },
+      hovertemplate: '<b>%{x}</b><br>Urbana: %{y:,.0f}<extra></extra>'
+    }
+  ], {
+    ...LAYOUT_BASE,
+    barmode: 'stack',
+    showlegend: true,
+    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: 1.05, x: 0 },
+    margin: { ...LAYOUT_BASE.margin, t: 22, b: 55 },
+    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -28 },
+    yaxis: { ...LAYOUT_BASE.yaxis, title: { text: 'Hab.', font: { size: 9 } } }
+  }, PLOTLY_CFG);
+}
+
+// ── TABLE ────────────────────────────────────────────────
+const TABLE_COLS = [
+  { key: 'municipio',               label: 'Município',       type: 'str'  },
+  { key: 'territorio',              label: 'Território',      type: 'str'  },
+  { key: 'bioma',                   label: 'Bioma',           type: 'str'  },
+  { key: 'ibge',                    label: 'IBGE',            type: 'str'  },
+  { key: 'area',                    label: 'Área (km²)',      type: 'num'  },
+  { key: 'pop_total',               label: 'Pop. Total',      type: 'num'  },
+  { key: 'pop_rural',               label: 'Pop. Rural',      type: 'num'  },
+  { key: 'idh',                     label: 'IDH',             type: 'num'  },
+  { key: 'pct_extremamente_pobres', label: '% Ext. Pobres',   type: 'num'  },
+  { key: 'benef_agri_familiar',     label: 'Benef. AF',       type: 'num'  },
+  { key: 'pessoal_agricultura',     label: 'Pessoal Agri.',   type: 'num'  },
+  { key: 'estab_agri_familiar',     label: 'Estab. AF',       type: 'num'  },
+  { key: 'caf',                     label: 'CAF',             type: 'num'  },
+];
+
+let tblSort = { key: 'pop_total', dir: -1 };   // -1 = desc, 1 = asc
+let tblData = [];  // derived from filteredMunicipios + search
+
+function initTable() {
+  // Build header
+  const thead = document.getElementById('tbl-head');
+  thead.innerHTML = '<tr>' + TABLE_COLS.map(c => `
+    <th data-key="${c.key}" onclick="sortTable('${c.key}')">
+      ${c.label}<span class="sort-icon">⇅</span>
+    </th>`).join('') + '</tr>';
+  renderTable();
+}
+
+function renderTable() {
+  const q = (document.getElementById('tbl-search')?.value || '').toLowerCase().trim();
+
+  tblData = filteredMunicipios.filter(d =>
+    !q ||
+    d.municipio.toLowerCase().includes(q) ||
+    d.territorio.toLowerCase().includes(q) ||
+    d.bioma.toLowerCase().includes(q)
+  );
+
+  // Sort
+  const col = TABLE_COLS.find(c => c.key === tblSort.key);
+  if (col) {
+    tblData = [...tblData].sort((a, b) => {
+      const av = a[tblSort.key], bv = b[tblSort.key];
+      if (col.type === 'num') return (av - bv) * tblSort.dir;
+      return String(av).localeCompare(String(bv), 'pt-BR') * tblSort.dir;
+    });
+  }
+
+  // Update header classes
+  document.querySelectorAll('#tbl-head th').forEach(th => {
+    const k = th.dataset.key;
+    th.className = k === tblSort.key ? (tblSort.dir === 1 ? 'sorted-asc' : 'sorted-desc') : '';
+    th.querySelector('.sort-icon').textContent = k === tblSort.key ? (tblSort.dir === 1 ? '↑' : '↓') : '⇅';
+  });
+
+  document.getElementById('tbl-count').textContent = tblData.length;
+
+  // Render rows
+  const tbody = document.getElementById('tbl-body');
+  if (!tblData.length) {
+    tbody.innerHTML = '<tr class="no-data-row"><td colspan="' + TABLE_COLS.length + '">Nenhum município encontrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = tblData.map(d => {
+    const dotColor = territoryColors[d.territorio] || '#64748b';
+    const terrLabel = d.territorio.replace(' - PB', '');
+    const idhPct = Math.round(norm(d.idh, 0.514, 0.763) * 100);
+    const pobrePct = Math.round(norm(d.pct_extremamente_pobres, 3.48, 43.17) * 100);
+    const isSelected = d.ibge === selectedIbge;
+
+    return `<tr class="${isSelected ? 'row-selected' : ''}" onclick="onTableRowClick('${d.ibge}')" data-ibge="${d.ibge}">
+      <td class="td-municipio">${d.municipio}</td>
+      <td><span class="td-terr-dot" style="background:${dotColor};"></span>${terrLabel}</td>
+      <td>${d.bioma}</td>
+      <td style="color:var(--muted);">${d.ibge}</td>
+      <td class="td-num">${d.area.toFixed(1)}</td>
+      <td class="td-num">${d.pop_total.toLocaleString('pt-BR')}</td>
+      <td class="td-num">${d.pop_rural.toLocaleString('pt-BR')}</td>
+      <td>
+        <div class="td-idh-bar">
+          ${d.idh.toFixed(3)}
+          <span class="mini-bar"><span class="mini-bar-fill" style="width:${idhPct}%;background:#4ade80;"></span></span>
+        </div>
+      </td>
+      <td>
+        <div class="td-idh-bar">
+          ${d.pct_extremamente_pobres.toFixed(1)}%
+          <span class="mini-bar"><span class="mini-bar-fill" style="width:${pobrePct}%;background:#f87171;"></span></span>
+        </div>
+      </td>
+      <td class="td-num">${d.benef_agri_familiar.toLocaleString('pt-BR')}</td>
+      <td class="td-num">${d.pessoal_agricultura.toLocaleString('pt-BR')}</td>
+      <td class="td-num">${d.estab_agri_familiar.toLocaleString('pt-BR')}</td>
+      <td class="td-num">${d.caf.toLocaleString('pt-BR')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function sortTable(key) {
+  if (tblSort.key === key) tblSort.dir *= -1;
+  else { tblSort.key = key; tblSort.dir = -1; }
+  renderTable();
+}
+
+function onTableRowClick(ibge) {
+  const d = allMunicipios.find(m => m.ibge === ibge);
+  if (!d) return;
+  onMunicipioClick(d);
+  // Pan map to the municipality
+  const layer = ibgeToLayer[ibge];
+  if (layer) map.fitBounds(layer.getBounds(), { padding: [40, 40], maxZoom: 13 });
+  // Update row highlight
+  document.querySelectorAll('#tbl-body tr').forEach(tr => {
+    tr.classList.toggle('row-selected', tr.dataset.ibge === ibge);
+  });
+}
+
+function exportCSV() {
+  const headers = TABLE_COLS.map(c => c.label).join(';');
+  const rows = tblData.map(d => TABLE_COLS.map(c => {
+    const v = d[c.key];
+    return typeof v === 'string' && v.includes(';') ? `"${v}"` : v;
+  }).join(';')).join('\n');
+  const csv = '\uFEFF' + headers + '\n' + rows;  // BOM for Excel UTF-8
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), {
+    href: url, download: 'territorios_pas_nordeste_pb.csv'
+  });
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── HELPER ────────────────────────────────────────────────
+function groupByTerritory(data, init, merge) {
+  const out = {};
+  data.forEach(d => {
+    const k = d.territorio;
+    if (!out[k]) out[k] = { ...init(d), color: territoryColors[k] || '#64748b' };
+    else merge(out[k], d);
+  });
+  return out;
+}
+
+// ── START ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
