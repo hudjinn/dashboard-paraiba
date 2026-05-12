@@ -132,6 +132,41 @@
       border-top: 1px solid #334155;
       padding-top: 0.75rem;
     }
+
+    /* ===== MODAL FONTES ===== */
+    .modal-box-wide {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 2rem 2.25rem;
+      max-width: 680px;
+      width: 95%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      position: relative;
+      animation: fadeInUp 0.22s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-sources-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+    }
+    .modal-sources-table thead th {
+      color: #38bdf8;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid #334155;
+      text-align: left;
+    }
+    .modal-sources-table tbody tr + tr td { border-top: 1px solid #1e3a5f; }
+    .modal-sources-table td { padding: 0.5rem 0.6rem; vertical-align: top; color: #e2e8f0; }
+    .modal-sources-table .col-entity { color: #94a3b8; }
+    .modal-sources-table .col-year { color: #38bdf8; text-align: center; white-space: nowrap; }
     .modal-close {
       position: absolute;
       top: 0.75rem;
@@ -654,16 +689,50 @@
 <!-- ===== HEADER ===== -->
 <header class="dash-header">
   <div>
-    <h1>🗺️ Diagnóstico Territorial – Paraíba</h1>
+    <h1>Diagnóstico Territorial – Paraíba</h1>
     <p>Cariri Ocidental &amp; Serra do Teixeira · Territórios PAS Nordeste · Fontes: IBGE, MDA · 2026</p>
   </div>
   <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
     <div class="header-badge"><strong>2</strong>Territórios PAS</div>
     <div class="header-badge"><strong id="hdr-municipios">23</strong>Municípios</div>
     <div class="header-badge"><strong>PB</strong>Estado</div>
+    <button class="btn-equipe" onclick="document.getElementById('modal-fontes').classList.add('open')">Fontes</button>
     <button class="btn-equipe" onclick="document.getElementById('modal-equipe').classList.add('open')">Sobre</button>
   </div>
 </header>
+
+<!-- ===== MODAL FONTES ===== -->
+<div class="modal-overlay" id="modal-fontes" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box-wide">
+    <button class="modal-close" onclick="document.getElementById('modal-fontes').classList.remove('open')" aria-label="Fechar">&times;</button>
+    <h2>Fontes dos Dados</h2>
+    <div class="modal-subtitle">Indicadores, entidades responsáveis e anos de referência</div>
+    <table class="modal-sources-table">
+      <thead>
+        <tr>
+          <th>Indicador</th>
+          <th>Entidade</th>
+          <th>Ano</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Território</td><td class="col-entity">MDA</td><td class="col-year">2025</td></tr>
+        <tr><td>Área Municipal</td><td class="col-entity">IBGE Cidades</td><td class="col-year">2026</td></tr>
+        <tr><td>População</td><td class="col-entity">IBGE Cidades</td><td class="col-year">2026</td></tr>
+        <tr><td>População Quilombola</td><td class="col-entity">Censo 2022</td><td class="col-year">2022</td></tr>
+        <tr><td>População Indígena</td><td class="col-entity">Censo 2022</td><td class="col-year">2022</td></tr>
+        <tr><td>Assentamentos de Reforma Agrária</td><td class="col-entity">INCRA</td><td class="col-year">2026</td></tr>
+        <tr><td>Taxa de Alfabetização</td><td class="col-entity">Censo 2022</td><td class="col-year">2022</td></tr>
+        <tr><td>Composição da Pop. por Gênero</td><td class="col-entity">Censo 2022</td><td class="col-year">2022</td></tr>
+        <tr><td>IDH</td><td class="col-entity">IBGE e AtlasBR</td><td class="col-year">2010</td></tr>
+        <tr><td>Taxa de Crescimento Populacional</td><td class="col-entity">Censo 2022</td><td class="col-year">2022</td></tr>
+        <tr><td>Taxa de Extremamente Pobres</td><td class="col-entity">IBGE, Censo Demográfico</td><td class="col-year">2000</td></tr>
+        <tr><td>Taxa de Extremamente Pobres</td><td class="col-entity">Pesquisa de Orçamentos Familiares – POF</td><td class="col-year">2002/2003</td></tr>
+        <tr><td>Dados da Agricultura Familiar</td><td class="col-entity">MDA</td><td class="col-year">2026</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
 <!-- ===== MODAL EQUIPE ===== -->
 <div class="modal-overlay" id="modal-equipe" onclick="if(event.target===this)this.classList.remove('open')">
@@ -792,6 +861,10 @@
   <div class="chart-card">
     <div class="chart-title">Taxa de Alfabetização e Crescimento Pop. por Município</div>
     <div class="chart-container" id="chart-social"></div>
+  </div>
+  <div class="chart-card" style="grid-column:1/-1;">
+    <div class="chart-title">Pop. Quilombola × Pop. Indígena por Município</div>
+    <div class="chart-container" id="chart-quilind" style="height:260px;"></div>
   </div>
 </div>
 
@@ -1260,6 +1333,7 @@ function updateCharts() {
   chartScatter();
   chartAgri();
   chartSocial();
+  chartQuilInd();
 }
 
 // Chart 2 – Scatter IDH vs Poverty
@@ -1342,6 +1416,41 @@ function chartRuralUrbano() {
     margin: { ...LAYOUT_BASE.margin, t: 22, b: 60 },
     xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -40, tickfont: { size: 8 } },
     yaxis: { ...LAYOUT_BASE.yaxis, title: { text: 'Hab.', font: { size: 9 } } }
+  }, PLOTLY_CFG);
+}
+
+// Chart 6 – Quilombola × Indígena dual-axis
+function chartQuilInd() {
+  const sorted = [...filteredMunicipios].sort((a, b) => (b.pop_quilombola||0) - (a.pop_quilombola||0));
+  const labels = sorted.map(d => d.municipio);
+
+  Plotly.react('chart-quilind', [
+    {
+      type: 'bar', name: 'Pop. Quilombola', yaxis: 'y',
+      x: labels, y: sorted.map(d => d.pop_quilombola || 0),
+      marker: { color: '#a78bfa', opacity: 0.85 },
+      hovertemplate: '<b>%{x}</b><br>Quilombola: %{y:,.0f}<extra></extra>'
+    },
+    {
+      type: 'scatter', mode: 'markers+lines', name: 'Pop. Indígena', yaxis: 'y2',
+      x: labels, y: sorted.map(d => d.pop_indigena || 0),
+      marker: { color: '#34d399', size: 7, symbol: 'diamond' },
+      line: { color: '#34d399', width: 1.5, dash: 'dot' },
+      hovertemplate: '<b>%{x}</b><br>Indígena: %{y:,.0f}<extra></extra>'
+    }
+  ], {
+    ...LAYOUT_BASE,
+    showlegend: true,
+    legend: { bgcolor: 'transparent', font: { size: 8 }, orientation: 'h', y: 1.06, x: 0 },
+    margin: { ...LAYOUT_BASE.margin, t: 22, b: 60, r: 55 },
+    xaxis: { ...LAYOUT_BASE.xaxis, tickangle: -40, tickfont: { size: 8 } },
+    yaxis:  { ...LAYOUT_BASE.yaxis, title: { text: 'Pop. Quilombola', font: { size: 9 } } },
+    yaxis2: {
+      overlaying: 'y', side: 'right',
+      title: { text: 'Pop. Indígena', font: { size: 9 } },
+      gridcolor: 'transparent', tickfont: { size: 8 },
+      color: '#e2e8f0', zerolinecolor: '#334155'
+    }
   }, PLOTLY_CFG);
 }
 
