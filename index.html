@@ -252,6 +252,7 @@
       outline: none;
       border-color: var(--accent);
     }
+    .filter-group select option { background: var(--bg); color: var(--text); }
     .btn-reset {
       background: transparent;
       border: 1px solid var(--border);
@@ -820,6 +821,14 @@
       <option value="pop_total">População Total</option>
     </select>
   </div>
+  <div class="filter-group">
+    <label>Basemap CARTO</label>
+    <select id="basemap-by">
+      <option value="voyager">VOYAGER</option>
+      <option value="positron">POSITRON</option>
+      <option value="dark-matter" selected>DARK_MATTER</option>
+    </select>
+  </div>
   <button class="btn-reset" onclick="resetFilters()">↺ Limpar</button>
   <div class="filter-info">Exibindo <span id="filter-count">23</span> municípios</div>
 </div>
@@ -920,6 +929,13 @@ let geoLayer = null;
 let ibgeToLayer = {};
 let selectedIbge = null;
 let legendControl = null;
+let basemapLayer = null;
+
+const CARTO_BASEMAPS = {
+  positron: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  voyager: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+  'dark-matter': 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+};
 
 // ── INIT ──────────────────────────────────────────────────
 async function init() {
@@ -948,6 +964,9 @@ async function init() {
       refreshMapColors();
       updateLegend();
     });
+    document.getElementById('basemap-by').addEventListener('change', e => {
+      changeBasemap(e.target.value);
+    });
 
   } catch (err) {
     console.error('Init error:', err);
@@ -973,12 +992,23 @@ function initMap() {
   });
   map.setView([-7.2, -36.8], 7);
 
-  L.maplibreGL({
-    style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json?key=cb1_508n_1_dd78bf896e47f1309c8773b9',
+  basemapLayer = L.maplibreGL({
+    style: CARTO_BASEMAPS['dark-matter'],
     attribution: ''
   }).addTo(map);
 
   addLegend();
+}
+
+function changeBasemap(name) {
+  const styleUrl = CARTO_BASEMAPS[name];
+  if (!styleUrl || !map) return;
+
+  if (basemapLayer) basemapLayer.remove();
+  basemapLayer = L.maplibreGL({
+    style: styleUrl,
+    attribution: ''
+  }).addTo(map);
 }
 
 function loadGeoJSON() {
